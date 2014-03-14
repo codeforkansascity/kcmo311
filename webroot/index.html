@@ -34,7 +34,7 @@
 				$.ajax({                                                            // Neighborhood Select
 				   type: "GET",
 				   dataType: "jsonp",
-				   url: "http://311final.localhost/api/neighborhoods",
+				   url: "api/neighborhoods",
 				   success: function( data, textStatus, jqXHR){        
                         if ( data.error ) {
 				            $('#neighborhoods').append( 'Unable to get Neighborhoods'  );
@@ -61,7 +61,7 @@
 				$.ajax({                                                            // Request Types select
 				   type: "GET",
 				   dataType: "jsonp",
-				   url: "http://311final.localhost/api/requesttypes",
+				   url: "api/requesttypes",
 				   success: function( data ){        
 				        var sel = $('<select/>');
 				        sel.append($("<option>").attr('value',0).text('All Request Types').attr('selected',true));
@@ -110,7 +110,7 @@
 				$.ajax({                                                                // Load 311 Calls
 				   type: "GET",
 				   dataType: "jsonp",
-				   url: "http://311final.localhost/api/calls",
+				   url: "api/calls",
 				   success: function(data){        
 				        $.each( data, function ( i, rec ) {
 				
