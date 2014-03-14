@@ -1,0 +1,212 @@
+<html>
+<head>
+	<title>311 Daily Brief</title>
+	<link rel="stylesheet" href="css/bootstrapwp.css">
+</head>
+<body>
+<div class="row">
+  <div class="container">
+   </div><!--/.container -->
+   </div><!--/.row -->
+   <div class="container">
+    <header class="page-title">
+        <h1>311 Daily Brief</h1>
+      </header>
+        <div class="row content">
+            <div class="span4">
+            </div>
+            <div class="span4">
+			<div id="neighborhoods" name="neighborhoods" class="span12"> </div>
+            </div>
+            <div class="span4">
+			<div id="requesttypes" name="requesttypes" class="span12"> </div>
+            </div>
+        </div>
+        <div class="row content">
+			<div class="span12">
+				
+				<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+				<script type="text/javascript" src="http://welcome.totheinter.net/autocolumn/autocolumn.js"></script>
+				<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script> 
+				
+				<script type="text/javascript"> 
+
+				$.ajax({                                                            // Neighborhood Select
+				   type: "GET",
+				   dataType: "jsonp",
+				   url: "http://311final.localhost/api/neighborhoods",
+				   success: function( data, textStatus, jqXHR){        
+                        if ( data.error ) {
+				            $('#neighborhoods').append( 'Unable to get Neighborhoods'  );
+                        } else {
+    				        var sel = $('<select/>');
+    				        sel.append($("<option>").attr('value',0).text('All Neighborhoods').attr('selected',true));
+    				        $.each( data, function ( i, rec ) {
+    				            if ( rec.name == '' ) {
+    				               sel.append($("<option>").attr('value',rec.id).text('No Neighborhood Given'));
+    				            } else {
+    				               sel.append($("<option>").attr('value',rec.id).text(rec.name));
+    				            }
+				            });
+    				        $('#neighborhoods').append( sel );
+                        }
+				   }
+                   , error: function(jqXHR, textStatus, errorThrown){
+				        $('#neighborhoods').append( 'ERROR: Unable to get Neighborhoods'  );
+                    }
+				    
+				});
+				
+				
+				$.ajax({                                                            // Request Types select
+				   type: "GET",
+				   dataType: "jsonp",
+				   url: "http://311final.localhost/api/requesttypes",
+				   success: function( data ){        
+				        var sel = $('<select/>');
+				        sel.append($("<option>").attr('value',0).text('All Request Types').attr('selected',true));
+				        $.each( data, function ( i, rec ) {
+				            if ( rec.name == '' ) {
+				               sel.append($("<option>").attr('value',rec.id).text('No Request Type Given'));
+				            } else {
+				               sel.append($("<option>").attr('value',rec.id).text(rec.name));
+				            }
+				        });
+				        $('#requesttypes').append( sel );
+				   }
+				    
+				});
+				jQuery(function() {
+					initialize();
+					jQuery('#gsidebar').columnize({columns:4});
+				});
+				
+                //<![CDATA[
+					// setup
+					var side_bar_html = ""; 
+					var gmarkers = []; 
+					var map = null;
+					
+				function initialize() {
+					// create the map
+					var myOptions = {
+						zoom: 11,
+						mapTypeControl: true,
+						mapTypeControlOptions: { style: google.maps.MapTypeControlStyle.DROPDOWN_MENU },
+						navigationControl: true,
+						mapTypeId: google.maps.MapTypeId.ROADMAP,
+						center: new google.maps.LatLng( 39.099727, -94.578567 ),
+					}
+					map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+					
+					google.maps.event.addListener(map, 'click', function() {
+						infowindow.close();
+					});
+					
+				  // Add markers
+				
+                    
+				
+				$.ajax({                                                                // Load 311 Calls
+				   type: "GET",
+				   dataType: "jsonp",
+				   url: "http://311final.localhost/api/calls",
+				   success: function(data){        
+				        $.each( data, function ( i, rec ) {
+				
+				            if (rec.longitude && rec.latitude ) {
+								var infowindow_content = "<div class='google-infowindow'>";
+				                    infowindow_content += rec.address_line_1 + " " + rec.zip_code+ "<br>";
+				                    infowindow_content += "request_type:" + rec.request_type + "<br>";
+				                    infowindow_content += "creation_date:" + rec.creation_date + "<br>";
+				                    infowindow_content += "closed_date:" + rec.closed_date + "<br>";
+				                    infowindow_content += "status:" + rec.status + "<br>";
+				                    infowindow_content += "neighborhood:" + rec.neighborhood + "<br>";
+				                    infowindow_content += "parcel_id_no:" + rec.parcel_id_no + "<br>";
+				
+				                    infowindow_content += "<img src=\"http://maps.googleapis.com/maps/api/streetview?size=350x170";
+				
+				                    infowindow_content += "&location=" + rec.latitude + "%20" + rec.longitude ;
+				
+				                    infowindow_content += "&fov=90&heading=235&pitch=10&sensor=false\" width=\"100%\" />";
+								    infowindow_content += "</div>";
+											
+				                var point = new google.maps.LatLng(rec.latitude,rec.longitude);
+								var marker = createMarker( point, rec.address_line_1, infowindow_content );
+				         }
+				        });
+				   }
+				});
+				
+								
+								var infowindow = new google.maps.InfoWindow({ 
+									size: new google.maps.Size(450,350)
+								});
+								
+				
+					// put the assembled side_bar_html contents into the side_bar div
+					document.getElementById("gsidebar").innerHTML = side_bar_html;
+				
+					// put the assembled side_bar_html contents into the side_bar div
+				//	document.getElementById("gsidebar").innerHTML = side_bar_html;
+				
+				}
+				
+				var infowindow = new google.maps.InfoWindow({ 
+				    size: new google.maps.Size(450,350)
+				});
+				
+				// This function picks up the click and opens the corresponding info window
+				function detail(i) {
+				  google.maps.event.trigger(gmarkers[i], "click");
+				}
+				
+				// create the marker and set up the event window function 
+				function createMarker(latlng, name, html) {
+					var contentString = html;
+					var marker = new google.maps.Marker({
+						position: latlng,
+						map: map,
+						zIndex: Math.round(latlng.lat()*-100000)<<5
+					});
+						
+					google.maps.event.addListener(marker, 'click', function() {
+						infowindow.setContent(contentString); 
+						infowindow.open(map,marker);
+					});
+					// save the info we need to use later for the side_bar
+					gmarkers.push(marker);
+					// add a line to the side_bar html
+					side_bar_html += '<a href="javascript:detail(' + (gmarkers.length-1) + ')">' + name + '<\/a><br>';
+				}
+				
+				// GOOGLE FONTS
+				WebFontConfig = {
+					google: { families: [ 'Six+Caps::latin' ] }
+					};
+					(function() {
+					var wf = document.createElement('script');
+					wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+					 '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+					wf.type = 'text/javascript';
+					wf.async = 'true';
+					var s = document.getElementsByTagName('script')[0];
+					s.parentNode.insertBefore(wf, s);
+				})();
+				
+
+				</script>
+				
+				<div id="map_canvas" style="width: 100%; height: 450px; background: white url(http://google-web-toolkit.googlecode.com/svn-history/r8457/trunk/user/src/com/google/gwt/cell/client/loading.gif) no-repeat 50% 50%;"></div> 
+	
+			<?php endwhile; // end of the loop. ?>
+</div><!-- /.span8 -->
+</div>
+<div class="row">
+	<div class="span12">
+		<div id="gsidebar"></div>
+	</div>
+</div>
+
+</body>
+</html>
