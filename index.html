@@ -34,7 +34,7 @@
 				$.ajax({                                                            // Neighborhood Select
 				   type: "GET",
 				   dataType: "jsonp",
-				   url: "api/neighborhoods",
+				   url: "http://311composer.localhost/neighborhoods",
 				   success: function( data, textStatus, jqXHR){        
                         if ( data.error ) {
 				            $('#neighborhoods').append( 'Unable to get Neighborhoods'  );
@@ -61,7 +61,7 @@
 				$.ajax({                                                            // Request Types select
 				   type: "GET",
 				   dataType: "jsonp",
-				   url: "api/requesttypes",
+				   url: "http://311composer.localhost/requesttypes",
 				   success: function( data ){        
 				        var sel = $('<select/>');
 				        sel.append($("<option>").attr('value',0).text('All Request Types').attr('selected',true));
