@@ -61,7 +61,7 @@
 				$.ajax({                                                            // Request Types select
 				   type: "GET",
 				   dataType: "jsonp",
-				   url: "http://311composer.localhost/requesttypes",
+				   url: "http://kcmo311.savagesoft.com/api/requesttypes",
 				   success: function( data ){        
 				        var sel = $('<select/>');
 				        sel.append($("<option>").attr('value',0).text('All Request Types').attr('selected',true));
@@ -110,7 +110,7 @@
 				$.ajax({                                                                // Load 311 Calls
 				   type: "GET",
 				   dataType: "jsonp",
-				   url: "api/calls",
+				   url: "http://kcmo311.savagesoft.com/api/calls",
 				   success: function(data){        
 				        $.each( data, function ( i, rec ) {
 				
