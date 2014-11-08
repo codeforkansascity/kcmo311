@@ -34,7 +34,7 @@
 				$.ajax({                                                            // Neighborhood Select
 				   type: "GET",
 				   dataType: "jsonp",
-				   url: "http://311composer.localhost/neighborhoods",
+				   url: "http://kcmo311.savagesoft.com/api/neighborhoods",
 				   success: function( data, textStatus, jqXHR){        
                         if ( data.error ) {
 				            $('#neighborhoods').append( 'Unable to get Neighborhoods'  );
